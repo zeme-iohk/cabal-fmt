@@ -46,7 +46,7 @@ parseExe = unpack' (C.alaList C.CommaVCat) <$> C.parsec
 pretty :: Options -> [C.Dependency] -> PP.Doc
 pretty opts deps = case deps of
     []    -> PP.empty
-    [dep] -> C.pretty (C.depPkgName dep) PP.<+> prettyVR vr'
+    [dep] -> PP.text (prettyDepNoVersion dep) PP.<+> prettyVR vr'
       where
         vr' = either (C.fromVersionIntervals . C.mkVersionIntervals) id
             $ norm opts (C.asVersionIntervals $ C.depVerRange dep)
@@ -62,10 +62,10 @@ pretty opts deps = case deps of
               $ map (prettyDepNoVersion &&& C.asVersionIntervals . C.depVerRange)
               $ C.fromDepMap . C.toDepMap -- this combines duplicate packages
               $ deps
-
-        prettyDepNoVersion :: C.Dependency -> String
-        prettyDepNoVersion (C.Dependency pkg _ libs) =
-          C.prettyShow (C.Dependency pkg C.anyVersion libs)
+    where
+      prettyDepNoVersion :: C.Dependency -> String
+      prettyDepNoVersion (C.Dependency pkg _ libs) =
+        C.prettyShow (C.Dependency pkg C.anyVersion libs)
 
 
 prettyExe :: Options -> [C.ExeDependency] -> PP.Doc
